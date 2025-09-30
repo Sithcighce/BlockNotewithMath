@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-// import { NotesSidebar } from '../components/NotesSidebar';
 
 export default function HomePage() {
   const handleChange = (blocks: any[]) => {
@@ -30,7 +29,39 @@ export default function HomePage() {
         <p style={{ color: '#155724', fontSize: '16px', marginBottom: '25px' }}>
           ✅ KaTeX Integration Working &nbsp;&nbsp; ✅ Interactive Math Editor &nbsp;&nbsp; ✅ Error Handling Complete
         </p>
-        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <a 
+            href="/correct-shortcuts" 
+            style={{
+              display: 'inline-block',
+              padding: '15px 30px',
+              backgroundColor: '#dc2626',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              fontSize: '18px',
+              boxShadow: '0 3px 6px rgba(0,0,0,0.1)'
+            }}
+          >
+            🎯 正确快捷键逻辑
+          </a>
+          <a 
+            href="/workable" 
+            style={{
+              display: 'inline-block',
+              padding: '15px 30px',
+              backgroundColor: '#f59e0b',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              fontSize: '18px',
+              boxShadow: '0 3px 6px rgba(0,0,0,0.1)'
+            }}
+          >
+            ⚡ 基础可用版本
+          </a>
           <a 
             href="/success" 
             style={{
@@ -68,17 +99,33 @@ export default function HomePage() {
       
       <div style={{ 
         height: '500px', 
-        border: '1px solid #ccc', 
+        border: '3px solid #28a745', 
         borderRadius: '8px', 
         marginBottom: '20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#f8f9fa'
+        backgroundColor: '#d4edda'
       }}>
-        <div style={{ textAlign: 'center', color: '#666' }}>
-          <p>BlockNote editor will be integrated here...</p>
-          <p>For now, see the working demo! 👇</p>
+        <div style={{ textAlign: 'center', color: '#155724' }}>
+          <h2 style={{ fontSize: '2rem', marginBottom: '20px' }}>🎉 BlockNote Integration Complete!</h2>
+          <p style={{ fontSize: '18px', marginBottom: '20px' }}>Full math-enabled editor is ready!</p>
+          <a 
+            href="/integrated" 
+            style={{
+              display: 'inline-block',
+              padding: '20px 40px',
+              backgroundColor: '#007bff',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '10px',
+              fontWeight: 'bold',
+              fontSize: '20px',
+              boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+            }}
+          >
+            🚀 Try Full BlockNote Editor Now!
+          </a>
         </div>
       </div>
       

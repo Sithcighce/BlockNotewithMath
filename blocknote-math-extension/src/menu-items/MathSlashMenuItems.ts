@@ -7,17 +7,19 @@ export interface MathSlashMenuItem {
   hint?: string;
 }
 
-export const createMathSlashMenuItems = (): MathSlashMenuItem[] => [
+export const createMathSlashMenuItems = (): any[] => [
   {
     name: "Math Block",
-    execute: (editor) => {
-      // 简化的插入逻辑，避免类型问题
-      if (editor && editor.insertBlocks) {
-        editor.insertBlocks([{
-          type: "math",
-          props: { latex: "" }
-        }]);
-      }
+    execute: (editor: any) => {
+      // 获取当前光标位置并插入数学块
+      const currentBlock = editor.getTextCursorPosition().block;
+      editor.insertBlocks([{
+        type: "math",
+        props: { latex: "E = mc^2" }  // 默认示例
+      }], currentBlock, "after");
+      
+      // 聚焦到新插入的块
+      editor.setTextCursorPosition(editor.getTextCursorPosition().block, "end");
     },
     aliases: ["math", "equation", "formula", "latex"],
     group: "Math",
@@ -26,13 +28,13 @@ export const createMathSlashMenuItems = (): MathSlashMenuItem[] => [
   },
   {
     name: "Equation",
-    execute: (editor) => {
-      if (editor && editor.insertBlocks) {
-        editor.insertBlocks([{
-          type: "math", 
-          props: { latex: "" }
-        }]);
-      }
+    execute: (editor: any) => {
+      const currentBlock = editor.getTextCursorPosition().block;
+      editor.insertBlocks([{
+        type: "math", 
+        props: { latex: "\\frac{a}{b}" }  // 分数示例
+      }], currentBlock, "after");
+      editor.setTextCursorPosition(editor.getTextCursorPosition().block, "end");
     },
     aliases: ["eq", "eqn"],
     group: "Math",
@@ -41,13 +43,13 @@ export const createMathSlashMenuItems = (): MathSlashMenuItem[] => [
   },
   {
     name: "Formula",
-    execute: (editor) => {
-      if (editor && editor.insertBlocks) {
-        editor.insertBlocks([{
-          type: "math",
-          props: { latex: "" }
-        }]);
-      }
+    execute: (editor: any) => {
+      const currentBlock = editor.getTextCursorPosition().block;
+      editor.insertBlocks([{
+        type: "math",
+        props: { latex: "\\sum_{i=1}^{n} x_i" }  // 求和示例
+      }], currentBlock, "after");
+      editor.setTextCursorPosition(editor.getTextCursorPosition().block, "end");
     },
     aliases: ["gs", "gongshi"],
     group: "Math", 

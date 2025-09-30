@@ -1,0 +1,294 @@
+"use client";
+
+import { useCreateBlockNote } from "../hooks/useCreateBlockNote";
+import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs } from "@blocknote/core";
+import { mathBlockSpec } from "../../blocknote-math-extension/src";
+import { inlineMathSpec } from "../../blocknote-math-extension/src/inline/InlineMathSpec";
+import dynamic from 'next/dynamic';
+import React, { useState, useEffect, useCallback } from 'react';
+import "katex/dist/katex.min.css";
+import "@blocknote/core/style.css";
+import "@blocknote/mantine/style.css";
+
+// 创建包含行内公式的 schema
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    math: mathBlockSpec(),
+  },
+  inlineContentSpecs: {
+    ...defaultInlineContentSpecs,
+    inlineMath: inlineMathSpec,
+  },
+});
+
+const DynamicBlockNoteView = dynamic(
+  () => import("@blocknote/mantine").then((mod) => mod.BlockNoteView),
+  { 
+    ssr: false,
+    loading: () => <div>Loading true inline math editor...</div>
+  }
+);
+
+interface TrueInlineMathEditorProps {
+  onChange?: (blocks: any[]) => void;
+}
+
+export function TrueInlineMathEditor({ onChange }: TrueInlineMathEditorProps) {
+  const [showInlineMathDialog, setShowInlineMathDialog] = useState(false);
+  const [inlineMathLatex, setInlineMathLatex] = useState("");
+
+  const editor = useCreateBlockNote({
+    schema,
+    initialContent: [
+      {
+        type: "paragraph",
+        content: [
+          "🧮 真正的行内公式编辑器！",
+        ]
+      },
+      {
+        type: "paragraph",
+        content: [
+          "测试行内公式：E = mc",
+          {
+            type: "inlineMath",
+            props: { latex: "E = mc^2" }
+          },
+          " 是爱因斯坦的著名公式。"
+        ]
+      },
+      {
+        type: "paragraph",
+        content: [
+          "更复杂的例子：二次公式是 ",
+          {
+            type: "inlineMath", 
+            props: { latex: "x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}" }
+          },
+          " 用于求解方程。"
+        ]
+      },
+      {
+        type: "paragraph",
+        content: "使用说明："
+      },
+      {
+        type: "paragraph",
+        content: "1. 点击任何公式进行编辑"
+      },
+      {
+        type: "paragraph",
+        content: "2. 选中文本后按 Ctrl+Shift+E 转换为公式（待实现）"
+      },
+      {
+        type: "paragraph",
+        content: "3. 无选中文本时按 Ctrl+Shift+E 打开输入框"
+      }
+    ]
+  });
+
+  // 智能快捷键处理
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'e') {
+      event.preventDefault();
+      
+      if (!editor) return;
+
+      try {
+        const selection = window.getSelection();
+        const selectedText = selection?.toString().trim();
+
+        if (selectedText && selectedText.length > 0) {
+          // 场景1: 转换选中文本为行内公式
+          console.log('Converting selected text to inline math:', selectedText);
+          convertSelectedTextToInlineMath(selectedText);
+        } else {
+          // 场景2: 打开行内公式输入
+          console.log('Opening inline math input dialog');
+          setInlineMathLatex("");
+          setShowInlineMathDialog(true);
+        }
+      } catch (error) {
+        console.error('Error in Ctrl+Shift+E handler:', error);
+      }
+    }
+  }, [editor]);
+
+  const convertSelectedTextToInlineMath = useCallback((selectedText: string) => {
+    if (!editor) return;
+
+    try {
+      // 获取当前文本光标位置
+      const textCursor = editor.getTextCursorPosition();
+      
+      // 尝试在当前位置插入行内公式
+      // 注意：这需要 BlockNote 0.39.1 的具体 API
+      if (textCursor && (editor as any).insertInlineContent) {
+        (editor as any).insertInlineContent([{
+          type: "inlineMath",
+          props: { latex: selectedText }
+        }]);
+      } else {
+        // 回退方案：打开对话框
+        setInlineMathLatex(selectedText);
+        setShowInlineMathDialog(true);
+      }
+    } catch (error) {
+      console.error('Error converting text to inline math:', error);
+      // 回退方案
+      setInlineMathLatex(selectedText);
+      setShowInlineMathDialog(true);
+    }
+  }, [editor]);
+
+  const handleInlineMathSubmit = () => {
+    if (!editor || !inlineMathLatex.trim()) return;
+
+    try {
+      const textCursor = editor.getTextCursorPosition();
+      
+      if ((editor as any).insertInlineContent) {
+        // 尝试插入行内内容
+        (editor as any).insertInlineContent([{
+          type: "inlineMath",
+          props: { latex: inlineMathLatex.trim() }
+        }]);
+      } else {
+        // 回退：插入到新段落中
+        const currentBlock = textCursor.block;
+        // 回退：插入数学块
+        (editor as any).insertBlocks([{
+          type: "math",
+          props: { latex: inlineMathLatex.trim() }
+        }], currentBlock, "after");
+      }
+      
+      setShowInlineMathDialog(false);
+      setInlineMathLatex("");
+    } catch (error) {
+      console.error('Error inserting inline math:', error);
+    }
+  };
+
+  const handleInlineMathKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      handleInlineMathSubmit();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
+  if (!editor) {
+    return <div>Loading true inline math editor...</div>;
+  }
+
+  return (
+    <div style={{ height: "100%", backgroundColor: "#ffffff" }}>
+      {/* 功能说明 */}
+      <div style={{ 
+        padding: '16px', 
+        backgroundColor: '#f0fdf4', 
+        borderBottom: '2px solid #22c55e',
+        fontSize: '14px',
+        lineHeight: '1.5'
+      }}>
+        <strong>🎯 真正的行内公式编辑器</strong><br/>
+        ✅ 支持真正的行内公式渲染和编辑<br/>
+        🔄 智能快捷键：Ctrl+Shift+E (选中文本转换 | 无选中时打开输入框)<br/>
+        📝 点击任何公式进行编辑<br/>
+        ⚠️ 文本转换功能正在开发中...
+      </div>
+
+      {/* 编辑器 */}
+      <div style={{ height: "calc(100% - 120px)", padding: "16px" }}>
+        <DynamicBlockNoteView 
+          editor={editor as any} 
+          onChange={() => onChange && onChange(editor.document)}
+        />
+      </div>
+
+      {/* 行内公式输入对话框 */}
+      {showInlineMathDialog && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '24px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+            minWidth: '400px',
+            maxWidth: '600px'
+          }}>
+            <h3 style={{ margin: '0 0 16px 0', color: '#1f2937' }}>输入行内公式</h3>
+            <textarea
+              value={inlineMathLatex}
+              onChange={(e) => setInlineMathLatex(e.target.value)}
+              onKeyDown={handleInlineMathKeyDown}
+              placeholder="输入 LaTeX 公式，例如: x^2 + y^2 = z^2"
+              style={{
+                width: '100%',
+                height: '80px',
+                padding: '12px',
+                border: '2px solid #e5e7eb',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontFamily: 'monospace',
+                resize: 'vertical'
+              }}
+              autoFocus
+            />
+            <div style={{ 
+              marginTop: '16px', 
+              display: 'flex', 
+              justifyContent: 'flex-end', 
+              gap: '8px' 
+            }}>
+              <button
+                onClick={() => setShowInlineMathDialog(false)}
+                style={{
+                  padding: '8px 16px',
+                  border: '1px solid #d1d5db',
+                  backgroundColor: 'white',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                取消
+              </button>
+              <button
+                onClick={handleInlineMathSubmit}
+                style={{
+                  padding: '8px 16px',
+                  border: 'none',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                插入
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

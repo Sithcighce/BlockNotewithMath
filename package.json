@@ -8,21 +8,20 @@
     "start": "next start"
   },
   "dependencies": {
-    "@blocknote/core": "^0.39.1",
-    "@blocknote/mantine": "^0.39.1",
-    "@blocknote/react": "^0.39.1",
-    "@mantine/core": "^8.3.2",
-    "@mantine/hooks": "^8.3.2",
-    "blocknote-math-extension": "file:blocknote-math-extension",
-    "katex": "^0.16.22",
-    "next": "15.5.4",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
+   "@blocknote/core": "0.39.1",
+   "@blocknote/mantine": "0.39.1",
+   "@blocknote/react": "0.39.1",
+   "@mantine/core": "8.3.2",
+   "@mantine/hooks": "8.3.2",
+   "katex": "0.16.22",
+   "next": "14.2.0",
+   "react": "18.2.0",
+   "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "typescript": "^5"
+   "@types/node": "20.11.30",
+   "@types/react": "18.2.44",
+   "@types/react-dom": "18.2.17",
+   "typescript": "5.4.5"
   }
 }
