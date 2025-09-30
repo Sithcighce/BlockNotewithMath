@@ -1,20 +1,24 @@
-// 简化的块规范定义，避免导入冲突
+// 简化的块规范定义，由使用者集成时实现具体的 BlockNote API 调用
 export const mathBlockConfig = {
   type: "math" as const,
   propSchema: {
     latex: {
-      default: "",
-      type: "string" as const,
+      default: "E = mc^2",
     },
   },
   content: "none" as const,
 };
 
-// 导出一个创建函数，由使用者调用
-export function createMathBlockSpec() {
-  // 这将在运行时由使用者的 BlockNote 版本来调用
-  // 避免在库级别导入 BlockNote 依赖
-  return mathBlockConfig;
+// 导出创建函数，让使用者在其项目中调用
+export function createMathBlockSpec(createReactBlockSpec: any, MathBlock: any) {
+  return createReactBlockSpec(
+    mathBlockConfig,
+    {
+      render: (props: any) => {
+        return MathBlock({ block: props.block, editor: props.editor });
+      },
+    }
+  );
 }
 
 export type MathBlockConfig = typeof mathBlockConfig;

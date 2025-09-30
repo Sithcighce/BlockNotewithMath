@@ -3,19 +3,9 @@ export declare const mathBlockConfig: {
     propSchema: {
         latex: {
             default: string;
-            type: "string";
         };
     };
     content: "none";
 };
-export declare function createMathBlockSpec(): {
-    type: "math";
-    propSchema: {
-        latex: {
-            default: string;
-            type: "string";
-        };
-    };
-    content: "none";
-};
+export declare function createMathBlockSpec(createReactBlockSpec: any, MathBlock: any): any;
 export type MathBlockConfig = typeof mathBlockConfig;
