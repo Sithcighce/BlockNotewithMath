@@ -1,0 +1,68 @@
+/* Math Block Styles */
+.blocknote-math-block {
+  padding: 16px;
+  border: 1px solid var(--bn-colors-border, #e5e7eb);
+  border-radius: 8px;
+  margin: 12px 0;
+  background-color: var(--bn-colors-background-secondary, #f9fafb);
+  text-align: center;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.blocknote-math-block:hover {
+  border-color: var(--bn-colors-border-hover, #d1d5db);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.blocknote-math-block:focus-within {
+  border-color: var(--bn-colors-primary, #3b82f6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.math-content {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--bn-colors-text, #111827);
+}
+
+.math-placeholder {
+  color: var(--bn-colors-text-muted, #6b7280);
+  font-style: italic;
+  margin: 0;
+  font-size: 14px;
+}
+
+.math-error {
+  color: var(--bn-colors-error, #ef4444);
+  font-family: monospace;
+  font-size: 14px;
+  background-color: var(--bn-colors-error-background, #fef2f2);
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--bn-colors-error, #ef4444);
+}
+
+/* Dark theme support */
+[data-theme="dark"] .blocknote-math-block {
+  border-color: var(--bn-colors-border, #374151);
+  background-color: var(--bn-colors-background-secondary, #1f2937);
+}
+
+[data-theme="dark"] .blocknote-math-block:hover {
+  border-color: var(--bn-colors-border-hover, #4b5563);
+}
+
+[data-theme="dark"] .math-content {
+  color: var(--bn-colors-text, #f9fafb);
+}
+
+[data-theme="dark"] .math-placeholder {
+  color: var(--bn-colors-text-muted, #9ca3af);
+}
+
+[data-theme="dark"] .math-error {
+  color: var(--bn-colors-error, #f87171);
+  background-color: var(--bn-colors-error-background, #450a0a);
+  border-color: var(--bn-colors-error, #f87171);
+}

@@ -1,0 +1,227 @@
+# 🎯 BlockNote Math Extension - 最终需求文档
+
+## 📅 更新时间
+2025年9月30日
+
+## 🎯 最终目标功能清单
+
+### 1. Slash 菜单命令支持
+用户可以通过以下命令插入数学公式块：
+- `/math` + 回车 → 插入数学公式块（Block equation）
+- `/eq` + 回车 → 插入数学公式块
+- `/gs` + 回车 → 插入数学公式块
+
+### 2. 行内公式支持
+- 使用两个美元符号 `$$公式内容$$` → 自动转换为行内公式（inline equation）
+- 实时解析和渲染
+
+### 3. 键盘快捷键
+- `Ctrl/Cmd + Shift + E` → 打开公式输入框
+- 在输入框中输入公式后按回车生成公式
+
+### 4. 格式化菜单集成
+- 选中文本后点击格式化菜单中标有根号符号 `√x` 的按钮 → 转为数学公式
+- 或选中文本后使用快捷键 `Ctrl/Cmd + Shift + E` → 转为数学公式
+
+## 🏗️ 技术实现架构
+
+### 扩展的项目结构
+```
+blocknote-math-extension/
+├── src/
+│   ├── blocks/
+│   │   ├── math/                       # 块级公式
+│   │   │   ├── MathBlock.tsx           # 块级公式组件
+│   │   │   └── MathBlockSpec.ts        # 块级公式规范
+│   │   └── inline-math/                # 行内公式
+│   │       ├── InlineMath.tsx          # 行内公式组件
+│   │       └── InlineMathSpec.ts       # 行内公式规范
+│   ├── menu-items/
+│   │   ├── MathSlashMenuItems.ts       # /math, /eq, /gs 命令
+│   │   └── MathFormattingButton.ts     # √x 格式化按钮
+│   ├── shortcuts/
+│   │   └── MathKeyboardShortcuts.ts    # Ctrl+Shift+E 快捷键
+│   ├── parsers/
+│   │   └── DoubleDollarParser.ts       # $$ 语法解析器
+│   ├── components/
+│   │   ├── MathInputDialog.tsx         # 公式输入对话框
+│   │   └── MathToolbar.tsx             # 数学工具栏
+│   ├── styles/
+│   │   ├── math-block.css              # 块级公式样式
+│   │   └── inline-math.css             # 行内公式样式
+│   └── index.ts                        # 主导出文件
+```
+
+## 📋 功能实现优先级
+
+### Phase 1: 基础块级公式支持 ✅
+- [x] 基于现有 CustomMathBlock 实现块级公式
+- [ ] 实现 Slash 菜单支持：`/math`, `/eq`, `/gs`
+- [ ] 基础的 BlockNote Schema 集成
+
+### Phase 2: 行内公式支持
+- [ ] 实现 `$$...$$` 语法检测和解析
+- [ ] 创建行内公式组件和渲染器
+- [ ] 实时解析和转换功能
+
+### Phase 3: 快捷键和输入框
+- [ ] 实现 `Ctrl/Cmd + Shift + E` 快捷键
+- [ ] 创建公式输入对话框组件
+- [ ] 输入框的公式预览功能
+
+### Phase 4: 格式化菜单集成
+- [ ] 创建格式化工具栏 `√x` 按钮
+- [ ] 选中文本转公式功能
+- [ ] 快捷键与格式化菜单的协调
+
+## 🎨 目标 API 设计
+
+### 最简单使用方式
+```tsx
+import { mathBlocks } from 'blocknote-math-extension';
+
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    ...mathBlocks,  // 一键添加所有数学功能
+  },
+});
+```
+
+### 完整功能集成
+```tsx
+import { 
+  mathBlocks, 
+  mathSlashMenuItems, 
+  mathFormattingButtons,
+  mathKeyboardShortcuts,
+  mathParsers 
+} from 'blocknote-math-extension';
+
+const editor = useCreateBlockNote({
+  schema: BlockNoteSchema.create({
+    blockSpecs: {
+      ...defaultBlockSpecs,
+      ...mathBlocks,  // 包含块级和行内公式
+    },
+  }),
+  slashMenuItems: [
+    ...getDefaultSlashMenuItems(),
+    ...mathSlashMenuItems,  // /math, /eq, /gs
+  ],
+  formattingToolbar: {
+    ...defaultFormattingToolbar,
+    ...mathFormattingButtons,  // √x 按钮
+  },
+  keyboardShortcuts: {
+    ...defaultKeyboardShortcuts,
+    ...mathKeyboardShortcuts,  // Ctrl+Shift+E
+  },
+  parsers: [
+    ...defaultParsers,
+    ...mathParsers,  // $$ 语法解析
+  ]
+});
+```
+
+## 🔧 技术实现细节
+
+### 1. Slash 菜单项实现
+```typescript
+const mathSlashMenuItems = [
+  {
+    name: "Math Block",
+    execute: (editor) => {
+      editor.insertBlocks([{
+        type: "math",
+        props: { latex: "" }
+      }], editor.getTextCursorPosition().block, "after");
+    },
+    aliases: ["math", "eq", "gs", "equation", "formula"],
+    group: "Math",
+  }
+];
+```
+
+### 2. 行内公式解析器
+```typescript
+const doubleDollarParser = {
+  pattern: /\$\$(.*?)\$\$/g,
+  replacement: (match, latex) => {
+    return createInlineMathElement(latex.trim());
+  }
+};
+```
+
+### 3. 键盘快捷键
+```typescript
+const mathShortcuts = {
+  "Ctrl-Shift-e": (editor) => openMathInputDialog(editor),
+  "Cmd-Shift-e": (editor) => openMathInputDialog(editor),
+};
+```
+
+### 4. 格式化按钮
+```typescript
+const mathFormattingButton = {
+  name: "Math Formula",
+  icon: "√x",
+  tooltip: "Convert to Math Formula",
+  isActive: (editor) => isSelectionMath(editor),
+  action: (editor) => convertSelectionToMath(editor)
+};
+```
+
+## 📱 用户体验流程
+
+### 插入块级公式
+1. 用户输入 `/math`、`/eq` 或 `/gs`
+2. 选择菜单项并按回车
+3. 插入空的数学公式块
+4. 用户可以直接编辑 LaTeX 代码
+
+### 插入行内公式
+1. 用户输入 `$$E=mc^2$$`
+2. 系统自动检测并转换为行内公式
+3. 实时渲染数学公式
+
+### 快捷键插入
+1. 用户按 `Ctrl/Cmd + Shift + E`
+2. 弹出公式输入对话框
+3. 输入公式后按回车插入
+
+### 文本转公式
+1. 用户选中文本（如：E=mc^2）
+2. 点击 `√x` 按钮或按 `Ctrl/Cmd + Shift + E`
+3. 选中文本转换为数学公式
+
+## ⚠️ 重要注意事项
+
+### 兼容性要求
+- 必须与 BlockNote 0.39.x 兼容
+- 支持 React 18+
+- KaTeX 0.16.22 渲染引擎
+
+### 性能考虑
+- 行内公式的实时解析不能影响编辑性能
+- KaTeX 渲染的错误处理机制
+- 大量公式时的渲染优化
+
+### 用户体验
+- 公式编辑时的实时预览
+- 错误公式的友好提示
+- 键盘快捷键的直观性
+
+## 🎯 成功验证标准
+
+当功能完成时，用户应该能够：
+- ✅ 使用 `/math`、`/eq`、`/gs` 命令插入公式块
+- ✅ 使用 `$$...$$ ` 语法创建行内公式
+- ✅ 使用 `Ctrl/Cmd + Shift + E` 打开公式编辑器
+- ✅ 选中文本后转换为数学公式
+- ✅ 在编辑器中流畅地编辑和预览数学公式
+
+---
+
+**更新记录：**
+- 2025年9月30日：创建最终需求文档，明确所有功能目标

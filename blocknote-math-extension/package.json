@@ -1,0 +1,46 @@
+{
+  "name": "blocknote-math-extension",
+  "version": "0.1.0",
+  "description": "A comprehensive math extension for BlockNote editor with KaTeX support",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc && npm run copy-css",
+    "copy-css": "powershell -Command \"robocopy src dist *.css /S /XO\"",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "blocknote",
+    "math",
+    "katex",
+    "latex",
+    "editor",
+    "extension",
+    "mathematics",
+    "formula"
+  ],
+  "author": "BlockNote Math Extension",
+  "license": "MIT",
+  "peerDependencies": {
+    "@blocknote/core": "^0.39.1",
+    "@blocknote/mantine": "^0.39.1",
+    "@blocknote/react": "^0.39.1",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "dependencies": {
+    "katex": "^0.16.22"
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.7",
+    "@types/node": "^20.19.18",
+    "@types/react": "^18.3.25",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "^5.9.2"
+  }
+}

@@ -1,0 +1,45 @@
+/* Inline Math Styles */
+.blocknote-inline-math {
+  display: inline;
+  color: var(--bn-colors-text, #111827);
+  font-size: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
+  border-radius: 2px;
+  padding: 2px 4px;
+  background-color: var(--bn-colors-background-secondary, rgba(59, 130, 246, 0.05));
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.blocknote-inline-math:hover {
+  background-color: var(--bn-colors-background-secondary-hover, rgba(59, 130, 246, 0.1));
+  border-color: var(--bn-colors-border, #e5e7eb);
+}
+
+.inline-math-error {
+  color: var(--bn-colors-error, #ef4444);
+  background-color: var(--bn-colors-error-background, #fef2f2);
+  font-family: monospace;
+  font-size: 0.9em;
+  padding: 2px 4px;
+  border-radius: 2px;
+  border: 1px solid var(--bn-colors-error, #ef4444);
+}
+
+/* Dark theme support */
+[data-theme="dark"] .blocknote-inline-math {
+  color: var(--bn-colors-text, #f9fafb);
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+[data-theme="dark"] .blocknote-inline-math:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+  border-color: var(--bn-colors-border, #374151);
+}
+
+[data-theme="dark"] .inline-math-error {
+  color: var(--bn-colors-error, #f87171);
+  background-color: var(--bn-colors-error-background, #450a0a);
+  border-color: var(--bn-colors-error, #f87171);
+}
