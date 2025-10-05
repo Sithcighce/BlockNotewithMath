@@ -1,157 +1,160 @@
 "use client";
 
-import React from 'react';
+import Link from "next/link";
+import { MathEditor } from "../components/MathEditor";
+import { useState } from "react";
 
 export default function HomePage() {
-  const handleChange = (blocks: any[]) => {
-    console.log('Content changed:', blocks);
-  };
+  const [editorContent, setEditorContent] = useState<any[]>([]);
+
+  const demoContent = [
+    {
+      type: "paragraph",
+      content: "Welcome to BlockNote Math Extension! 🎯"
+    },
+    {
+      type: "paragraph", 
+      content: "Try these features:"
+    },
+    {
+      type: "paragraph",
+      content: "• Type /math and press Enter to create a math block"
+    },
+    {
+      type: "paragraph",
+      content: "• Type /eq or /gs and press Enter for inline formulas"
+    },
+    {
+      type: "paragraph",
+      content: "• Use $$E=mc^2$$ syntax for auto-detection"
+    },
+    {
+      type: "paragraph",
+      content: [
+        "• Click existing formulas to edit, like ",
+        {
+          type: "inlineMath",
+          props: { latex: "x^2 + y^2 = z^2" }
+        },
+        " (Pythagorean theorem)"
+      ]
+    },
+    {
+      type: "math",
+      props: {
+        latex: "\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}"
+      }
+    },
+    {
+      type: "paragraph",
+      content: "Start editing below! 👇"
+    }
+  ];
 
   return (
-    <div style={{ height: '100vh', padding: '20px' }}>
-      <h1>🧮 BlockNote Math Extension Test</h1>
-      <p>这是我们开发的 BlockNote 数学扩展库的测试页面！</p>
-      
-      <div style={{ 
-        padding: '30px', 
-        backgroundColor: '#d4edda', 
-        borderRadius: '12px', 
-        margin: '20px 0',
-        border: '3px solid #28a745',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ color: '#155724', fontSize: '2rem', marginBottom: '15px' }}>
-          🎉 Mission Accomplished! 🎉
-        </h2>
-        <p style={{ color: '#155724', fontSize: '18px', marginBottom: '20px' }}>
-          I have successfully implemented the core math functionality that your predecessor was trying to build!
-        </p>
-        <p style={{ color: '#155724', fontSize: '16px', marginBottom: '25px' }}>
-          ✅ KaTeX Integration Working &nbsp;&nbsp; ✅ Interactive Math Editor &nbsp;&nbsp; ✅ Error Handling Complete
-        </p>
-        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a 
-            href="/correct-shortcuts" 
-            style={{
-              display: 'inline-block',
-              padding: '15px 30px',
-              backgroundColor: '#dc2626',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              fontSize: '18px',
-              boxShadow: '0 3px 6px rgba(0,0,0,0.1)'
-            }}
-          >
-            🎯 正确快捷键逻辑
-          </a>
-          <a 
-            href="/workable" 
-            style={{
-              display: 'inline-block',
-              padding: '15px 30px',
-              backgroundColor: '#f59e0b',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              fontSize: '18px',
-              boxShadow: '0 3px 6px rgba(0,0,0,0.1)'
-            }}
-          >
-            ⚡ 基础可用版本
-          </a>
-          <a 
-            href="/success" 
-            style={{
-              display: 'inline-block',
-              padding: '15px 30px',
-              backgroundColor: '#28a745',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              fontSize: '18px',
-              boxShadow: '0 3px 6px rgba(0,0,0,0.1)'
-            }}
-          >
-            🏆 See Full Results
-          </a>
-          <a 
-            href="/demo" 
-            style={{
-              display: 'inline-block',
-              padding: '15px 30px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              fontSize: '18px',
-              boxShadow: '0 3px 6px rgba(0,0,0,0.1)'
-            }}
-          >
-            🧮 Try the Demo
-          </a>
-        </div>
-      </div>
-      
-      <div style={{ 
-        height: '500px', 
-        border: '3px solid #28a745', 
-        borderRadius: '8px', 
-        marginBottom: '20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#d4edda'
-      }}>
-        <div style={{ textAlign: 'center', color: '#155724' }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '20px' }}>🎉 BlockNote Integration Complete!</h2>
-          <p style={{ fontSize: '18px', marginBottom: '20px' }}>Full math-enabled editor is ready!</p>
-          <a 
-            href="/integrated" 
-            style={{
-              display: 'inline-block',
-              padding: '20px 40px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '10px',
-              fontWeight: 'bold',
-              fontSize: '20px',
-              boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-            }}
-          >
-            🚀 Try Full BlockNote Editor Now!
-          </a>
-        </div>
-      </div>
-      
-      <div style={{ padding: '15px', backgroundColor: '#f0f9ff', borderRadius: '8px', border: '1px solid #0ea5e9' }}>
-        <h3>📝 功能测试清单：</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-          <div>
-            <h4>✅ Slash 命令测试：</h4>
-            <ul>
-              <li>输入 <code>/math</code> 并按回车 → 插入数学公式块</li>
-              <li>输入 <code>/eq</code> 并按回车 → 插入数学公式块</li>
-              <li>输入 <code>/gs</code> 并按回车 → 插入数学公式块</li>
-            </ul>
-          </div>
-          <div>
-            <h4>🧮 LaTeX 公式示例：</h4>
-            <ul>
-              <li><code>\frac{'{1}{2}'}</code> - 分数</li>
-              <li><code>x^2 + y^2 = z^2</code> - 上标</li>
-              <li><code>\sqrt{'{x}'}</code> - 平方根</li>
-              <li><code>\sum_{'{i=1}'}^n i</code> - 求和</li>
-            </ul>
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">
+                📊 BlockNote Math Extension
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Complete math support for BlockNote editor - Ready to use!
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                ✅ Production Ready
+              </span>
+              <Link href="/docs" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                📚 Documentation
+              </Link>
+            </div>
           </div>
         </div>
-        <p><strong>🎯 目标：</strong>用户应该能够使用 slash 命令插入数学块，并在其中输入 LaTeX 公式看到实时渲染！</p>
       </div>
-    </div>
+
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
+          {/* Live Editor */}
+          <div className="lg:col-span-2 bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="bg-gray-50 px-4 py-3 border-b">
+              <h2 className="text-lg font-semibold text-gray-800">🧮 Live Math Editor</h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Try all features in this interactive editor
+              </p>
+            </div>
+            <div className="h-[calc(100%-80px)]">
+              <MathEditor 
+                onChange={setEditorContent}
+                initialContent={demoContent}
+                placeholder="Start writing with full math support..."
+              />
+            </div>
+          </div>
+
+          {/* Feature Guide */}
+          <div className="bg-white rounded-lg shadow-lg p-6 overflow-y-auto">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">🚀 Quick Start Guide</h2>
+            
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                <h3 className="font-semibold text-blue-800 mb-2">Slash Commands</h3>
+                <div className="text-sm text-blue-700 space-y-1">
+                  <p><code className="bg-blue-100 px-1 rounded">/math</code> → Create math block</p>
+                  <p><code className="bg-blue-100 px-1 rounded">/eq</code> → Insert inline formula</p>
+                  <p><code className="bg-blue-100 px-1 rounded">/gs</code> → Insert inline formula</p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+                <h3 className="font-semibold text-green-800 mb-2">Auto-Detection</h3>
+                <div className="text-sm text-green-700 space-y-1">
+                  <p>Type <code className="bg-green-100 px-1 rounded">$$formula$$</code></p>
+                  <p>Automatically converts to inline math</p>
+                  <p>Example: <code className="bg-green-100 px-1 rounded">$$E=mc^2$$</code></p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500">
+                <h3 className="font-semibold text-purple-800 mb-2">Interactive Editing</h3>
+                <div className="text-sm text-purple-700 space-y-1">
+                  <p>Click any formula to edit</p>
+                  <p>Press Enter to save</p>
+                  <p>Press Escape to cancel</p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+                <h3 className="font-semibold text-orange-800 mb-2">LaTeX Support</h3>
+                <div className="text-sm text-orange-700 space-y-1">
+                  <p>Full KaTeX compatibility</p>
+                  <p>Real-time preview</p>
+                  <p>Error handling</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-6 border-t">
+              <h3 className="font-semibold text-gray-800 mb-3">📖 Explore More</h3>
+              <div className="space-y-2 text-sm">
+                <Link href="/docs" className="block text-blue-600 hover:text-blue-800">
+                  📚 Developer Documentation
+                </Link>
+                <Link href="/docs/integration" className="block text-blue-600 hover:text-blue-800">
+                  🔧 Integration Guide
+                </Link>
+                <Link href="/docs/examples" className="block text-blue-600 hover:text-blue-800">
+                  💡 Usage Examples
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }

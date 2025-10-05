@@ -5,13 +5,13 @@ import { BlockNoteSchema, defaultBlockSpecs, defaultInlineContentSpecs } from "@
 import { mathBlockSpec } from "../../blocknote-math-extension/src";
 import { createReactInlineContentSpec } from "@blocknote/react";
 import dynamic from 'next/dynamic';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import katex from 'katex';
 import "katex/dist/katex.min.css";
 import "@blocknote/core/style.css";
 import "@blocknote/mantine/style.css";
 
-// 行内数学公式组件 (继承 Phase 2 成功实现)
+// 行内数学公式组件
 const InlineMathComponent = ({ inlineContent, contentRef, updateInlineContent }: any) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editLatex, setEditLatex] = useState(inlineContent.props.latex);
@@ -119,8 +119,8 @@ const inlineMathSpec = createReactInlineContentSpec(
   }
 );
 
-// 创建包含行内公式的schema
-const schema = BlockNoteSchema.create({
+// 创建完整的数学编辑器 Schema
+const mathSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
     math: mathBlockSpec(),
@@ -135,130 +135,38 @@ const DynamicBlockNoteView = dynamic(
   () => import("@blocknote/mantine").then((mod) => mod.BlockNoteView),
   { 
     ssr: false,
-    loading: () => <div>Loading corrected slash math editor...</div>
+    loading: () => <div>Loading Math Editor...</div>
   }
 );
 
-interface CorrectedSlashMathEditorProps {
+interface MathEditorProps {
   onChange?: (blocks: any[]) => void;
+  initialContent?: any[];
+  placeholder?: string;
 }
 
-export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorProps) {
-  const [showMathBlockDialog, setShowMathBlockDialog] = useState(false);
+export function MathEditor({ onChange, initialContent, placeholder = "Start writing with math support..." }: MathEditorProps) {
+  const [showMathDialog, setShowMathDialog] = useState(false);
   const [showInlineMathDialog, setShowInlineMathDialog] = useState(false);
   const [mathLatex, setMathLatex] = useState("");
   const [inlineMathLatex, setInlineMathLatex] = useState("");
 
   const editor = useCreateBlockNote({
-    schema,
-    initialContent: [
+    schema: mathSchema,
+    initialContent: initialContent || [
       {
         type: "paragraph",
-        content: "🔄 Phase 4 修正版：正确的斜杠命令实现"
-      },
-      {
-        type: "paragraph",
-        content: "现在斜杠命令的正确行为："
-      },
-      {
-        type: "paragraph",
-        content: "• 输入 /math + Enter → 启动数学块编辑模式（弹出输入框）"
-      },
-      {
-        type: "paragraph",
-        content: "• 输入 /eq + Enter → 启动行内公式编辑模式"
-      },
-      {
-        type: "paragraph",
-        content: "• 输入 /gs + Enter → 启动行内公式编辑模式 (公式)"
-      },
-      {
-        type: "paragraph",
-        content: "✨ 演示行内公式："
-      },
-      {
-        type: "paragraph",
-        content: [
-          "爱因斯坦的质能公式 ",
-          {
-            type: "inlineMath",
-            props: { latex: "E = mc^2" }
-          },
-          " 和二次公式 ",
-          {
-            type: "inlineMath", 
-            props: { latex: "x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}" }
-          },
-          " 展示了数学的美妙。"
-        ]
-      },
-      {
-        type: "math",
-        props: {
-          latex: "\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}"
-        }
-      },
-      {
-        type: "paragraph",
-        content: "⚡ 试试输入 / 然后输入 math、eq 或 gs 启动编辑模式！"
+        content: placeholder
       }
     ]
   });
 
-  // Phase 4 修正版: 正确的斜杠命令实现
+  // 斜杠命令检测和处理
   useEffect(() => {
     if (!editor) return;
 
     let commandDetected = false;
 
-    const handleInput = (event: Event) => {
-      const target = event.target as HTMLElement;
-      if (!target) return;
-
-      const text = target.textContent || '';
-      
-      // 检测斜杠命令模式，避免重复触发
-      if (!commandDetected) {
-        const slashCommandMatch = text.match(/\/(\w+)\s*$/);
-        if (slashCommandMatch) {
-          const command = slashCommandMatch[1].toLowerCase();
-          
-          if (command === 'math') {
-            commandDetected = true;
-            handleSlashCommand('math');
-            setTimeout(() => { commandDetected = false; }, 100);
-          } else if (command === 'eq') {
-            commandDetected = true;
-            handleSlashCommand('eq');  
-            setTimeout(() => { commandDetected = false; }, 100);
-          } else if (command === 'gs') {
-            commandDetected = true;
-            handleSlashCommand('gs');
-            setTimeout(() => { commandDetected = false; }, 100);
-          }
-        }
-      }
-    };
-
-    const handleSlashCommand = (commandType: string) => {
-      try {
-        if (commandType === 'math') {
-          // /math → 启动数学块编辑模式
-          console.log('✅ 启动数学块编辑模式');
-          setMathLatex("");
-          setShowMathBlockDialog(true);
-        } else if (commandType === 'eq' || commandType === 'gs') {
-          // /eq 和 /gs → 启动行内公式编辑模式
-          console.log(`✅ 启动行内公式编辑模式 (${commandType})`);
-          setInlineMathLatex("");
-          setShowInlineMathDialog(true);
-        }
-      } catch (error) {
-        console.error('斜杠命令执行错误:', error);
-      }
-    };
-
-    // 监听键盘事件，检测回车键确认命令
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Enter' && !event.shiftKey) {
         const activeElement = document.activeElement as HTMLElement;
@@ -276,22 +184,56 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
           
           // 执行命令
           if (command === 'math') {
-            handleSlashCommand('math');
-          } else if (command === 'eq') {
-            handleSlashCommand('eq');
-          } else if (command === 'gs') {
-            handleSlashCommand('gs');
+            setMathLatex("");
+            setShowMathDialog(true);
+          } else if (command === 'eq' || command === 'gs') {
+            setInlineMathLatex("");
+            setShowInlineMathDialog(true);
           }
         }
       }
     };
 
-    document.addEventListener('input', handleInput);
+    // 自动检测 $$公式$$ 语法
+    const handleInput = (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (!target || commandDetected) return;
+
+      const text = target.textContent || '';
+      
+      // 检测双美元符号
+      const doubleDollarMatch = text.match(/\$\$(.*?)\$\$/);
+      if (doubleDollarMatch && doubleDollarMatch[1].trim()) {
+        commandDetected = true;
+        
+        const latex = doubleDollarMatch[1].trim();
+        const beforeText = text.substring(0, doubleDollarMatch.index);
+        const afterText = text.substring((doubleDollarMatch.index || 0) + doubleDollarMatch[0].length);
+        
+        // 清除原文本并插入行内公式
+        target.textContent = beforeText + afterText;
+        
+        try {
+          if ((editor as any).insertInlineContent) {
+            (editor as any).insertInlineContent([{
+              type: "inlineMath",
+              props: { latex: latex }
+            }]);
+          }
+        } catch (error) {
+          console.error('Error inserting inline math:', error);
+        }
+        
+        setTimeout(() => { commandDetected = false; }, 100);
+      }
+    };
+
     document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('input', handleInput);
 
     return () => {
-      document.removeEventListener('input', handleInput);
       document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('input', handleInput);
     };
   }, [editor]);
 
@@ -300,14 +242,13 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
     if (!editor || !mathLatex.trim()) return;
 
     try {
-      // 获取当前块并替换为数学块
       const currentBlock = editor.getTextCursorPosition().block;
       (editor as any).updateBlock(currentBlock, {
         type: "math",
         props: { latex: mathLatex.trim() }
       } as any);
       
-      setShowMathBlockDialog(false);
+      setShowMathDialog(false);
       setMathLatex("");
     } catch (error) {
       console.error('Error inserting math block:', error);
@@ -334,38 +275,19 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
   };
 
   if (!editor) {
-    return <div>Loading corrected slash math editor...</div>;
+    return <div>Loading Math Editor...</div>;
   }
 
   return (
-    <div style={{ height: "100%", backgroundColor: "#ffffff" }}>
-      {/* 修正说明 */}
-      <div style={{ 
-        padding: '16px', 
-        backgroundColor: '#fff3cd', 
-        borderBottom: '2px solid #ffc107',
-        fontSize: '14px',
-        lineHeight: '1.5'
-      }}>
-        <strong>🔄 Phase 4 修正版：正确的斜杠命令</strong><br/>
-        ✅ /math → 启动数学块编辑模式 (弹出输入框)<br/>
-        ✅ /eq → 启动行内公式编辑模式<br/>
-        ✅ /gs → 启动行内公式编辑模式 (公式)<br/>
-        ✅ 继承 Phase 1-3 所有功能<br/>
-        🎯 重点：启动编辑模式，而不是插入预设内容
-      </div>
-
-      {/* 编辑器 */}
-      <div style={{ height: "calc(100% - 120px)", padding: "16px" }}>
-        <DynamicBlockNoteView 
-          editor={editor as any} 
-          theme={"light"}
-          onChange={() => onChange && onChange(editor.document)}
-        />
-      </div>
+    <div style={{ height: "100%", position: "relative" }}>
+      <DynamicBlockNoteView 
+        editor={editor as any} 
+        theme={"light"}
+        onChange={() => onChange && onChange(editor.document)}
+      />
 
       {/* 数学块输入对话框 */}
-      {showMathBlockDialog && (
+      {showMathDialog && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -386,7 +308,7 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
             minWidth: '400px',
             maxWidth: '600px'
           }}>
-            <h3 style={{ margin: '0 0 16px 0', color: '#1f2937' }}>创建数学公式块</h3>
+            <h3 style={{ margin: '0 0 16px 0', color: '#1f2937' }}>Create Math Block</h3>
             <textarea
               value={mathLatex}
               onChange={(e) => setMathLatex(e.target.value)}
@@ -395,8 +317,12 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
                   e.preventDefault();
                   handleMathBlockSubmit();
                 }
+                if (e.key === 'Escape') {
+                  e.preventDefault();
+                  setShowMathDialog(false);
+                }
               }}
-              placeholder="输入 LaTeX 公式，例如: E = mc^2"
+              placeholder="Enter LaTeX formula, e.g.: E = mc^2"
               style={{
                 width: '100%',
                 height: '100px',
@@ -417,7 +343,7 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
                 borderRadius: '4px',
                 border: '1px solid #e5e7eb'
               }}>
-                <strong>预览: </strong>
+                <strong>Preview: </strong>
                 <div dangerouslySetInnerHTML={{
                   __html: katex.renderToString(mathLatex, {
                     displayMode: true,
@@ -434,7 +360,7 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
               gap: '8px' 
             }}>
               <button
-                onClick={() => setShowMathBlockDialog(false)}
+                onClick={() => setShowMathDialog(false)}
                 style={{
                   padding: '8px 16px',
                   border: '1px solid #d1d5db',
@@ -443,7 +369,7 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
                   cursor: 'pointer'
                 }}
               >
-                取消
+                Cancel
               </button>
               <button
                 onClick={handleMathBlockSubmit}
@@ -456,7 +382,7 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
                   cursor: 'pointer'
                 }}
               >
-                创建公式块
+                Create
               </button>
             </div>
           </div>
@@ -485,7 +411,7 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
             minWidth: '400px',
             maxWidth: '600px'
           }}>
-            <h3 style={{ margin: '0 0 16px 0', color: '#1f2937' }}>创建行内公式</h3>
+            <h3 style={{ margin: '0 0 16px 0', color: '#1f2937' }}>Create Inline Formula</h3>
             <textarea
               value={inlineMathLatex}
               onChange={(e) => setInlineMathLatex(e.target.value)}
@@ -494,8 +420,12 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
                   e.preventDefault();
                   handleInlineMathSubmit();
                 }
+                if (e.key === 'Escape') {
+                  e.preventDefault();
+                  setShowInlineMathDialog(false);
+                }
               }}
-              placeholder="输入 LaTeX 公式，例如: x^2 + y^2 = z^2"
+              placeholder="Enter LaTeX formula, e.g.: x^2 + y^2 = z^2"
               style={{
                 width: '100%',
                 height: '80px',
@@ -516,7 +446,7 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
                 borderRadius: '4px',
                 border: '1px solid #e5e7eb'
               }}>
-                <strong>预览: </strong>
+                <strong>Preview: </strong>
                 <span dangerouslySetInnerHTML={{
                   __html: katex.renderToString(inlineMathLatex, {
                     displayMode: false,
@@ -542,7 +472,7 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
                   cursor: 'pointer'
                 }}
               >
-                取消
+                Cancel
               </button>
               <button
                 onClick={handleInlineMathSubmit}
@@ -555,7 +485,7 @@ export function CorrectedSlashMathEditor({ onChange }: CorrectedSlashMathEditorP
                   cursor: 'pointer'
                 }}
               >
-                插入行内公式
+                Insert
               </button>
             </div>
           </div>
