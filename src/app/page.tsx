@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MathEditor } from "../components/MathEditor";
+import { FixedMathEditor } from "../components/FixedMathEditor";
 import { useState } from "react";
 
 export default function HomePage() {
@@ -88,7 +88,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="h-[calc(100%-80px)]">
-              <MathEditor 
+              <FixedMathEditor 
                 onChange={setEditorContent}
                 initialContent={demoContent}
                 placeholder="Start writing with full math support..."
